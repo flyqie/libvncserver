@@ -117,6 +117,57 @@ but basically it boils down to:
     cmake .. -DANDROID_NDK=<path> -DCMAKE_TOOLCHAIN_FILE=<path> -DANDROID_NATIVE_API_LEVEL=<API level you want>
     cmake --build .
 
+Crosscompiling from Unix to Kindle
+-----------------------------------
+
+```bash
+apt-get install build-essential autoconf automake bison flex gawk libtool libtool-bin libncurses-dev curl file git gperf help2man texinfo unzip wget
+
+git clone https://github.com/koreader/koxtoolchain.git
+
+cd koxtoolchain
+
+export CT_ALLOW_BUILD_AS_ROOT_SURE="y"
+
+./gen-tc.sh kindlepw2
+
+source $PWD/refs/x-compile.sh kindlepw2 env
+
+git clone https://github.com/LibVNC/libvncserver.git -b LibVNCServer-0.9.15
+
+cd libvncserver
+
+mkdir build
+
+cd build
+
+# fix CMakeCross.txt not exist
+cmake \
+  -DCMAKE_SYSTEM_NAME=Linux \
+  -DCMAKE_SYSTEM_PROCESSOR=arm \
+  -DCMAKE_INSTALL_PREFIX=build_dist \
+  -DCMAKE_C_COMPILER=${CROSS_PREFIX}gcc \
+  -DCMAKE_CXX_COMPILER=${CROSS_PREFIX}g++ \
+  -DCMAKE_FIND_ROOT_PATH=${TC_BUILD_DIR} \
+  -DCMAKE_FIND_ROOT_PATH_MODE_PROGRAM=NEVER \
+  -DCMAKE_FIND_ROOT_PATH_MODE_LIBRARY=ONLY \
+  -DCMAKE_FIND_ROOT_PATH_MODE_INCLUDE=ONLY \
+  -DCMAKE_C_FLAGS="${CFLAGS}" \
+  -DCMAKE_CXX_FLAGS="${CXXFLAGS}" \
+  -DCMAKE_INSTALL_RPATH="/mnt/us/extensions/kdvnc/lib" \
+  ..
+
+cmake --build .
+
+readelf -d libvncserver.so
+
+mkdir libvncserver
+
+make install
+
+zip -r libvnc_so.zip build_dist
+```
+
 Crosscompiling from Linux to Windows
 ------------------------------------
 
