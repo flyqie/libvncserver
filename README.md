@@ -159,10 +159,6 @@ cmake \
 
 cmake --build .
 
-readelf -d libvncserver.so
-
-mkdir libvncserver
-
 make install
 
 zip -r libvnc_so.zip build_dist
